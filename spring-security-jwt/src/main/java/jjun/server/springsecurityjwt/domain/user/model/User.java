@@ -33,6 +33,8 @@ public class User {
     @Column
     private Role role;
 
+    private String refreshToken;
+
 
     // 비밀번호 암호화
     public void passwordEncode(BCryptPasswordEncoder passwordEncoder) {
