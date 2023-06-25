@@ -35,6 +35,12 @@ public class User {
 
     private String refreshToken;
 
+    @Enumerated(EnumType.STRING)
+    @Column
+    private SocialPlatform socialPlatform;
+
+    private String socialId;  // 로그인한 소셜 타입의 식별자 값(일반 로그인인 경우는 null)
+
 
     // 비밀번호 암호화
     public void passwordEncode(BCryptPasswordEncoder passwordEncoder) {
