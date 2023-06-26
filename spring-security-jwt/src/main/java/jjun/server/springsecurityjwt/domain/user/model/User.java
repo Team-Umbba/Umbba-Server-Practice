@@ -18,26 +18,30 @@ public class User {
     @Column(name = "user_id")
     private Long id;
 
-    @Column
+    @Column(nullable = false)
     private String email;
 
-    @Column
+    @Column(nullable = false)
     private String username;  // TODO Spring Security의 username과 맞춰주기 위해 일부러 넣은 필드
 
-    @Column
+    @Column(nullable = false)
     private String password;
 
-    @Column
+    @Column(nullable = false)
     private String nickname;
 
+    @Column(nullable = false)
+    private String profileImage;
+
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    @Column
     private Role role;
 
+    @Column(nullable = false)
     private String refreshToken;
 
-    @Enumerated(EnumType.STRING)
     @Column
+    @Enumerated(EnumType.STRING)
     private SocialPlatform socialPlatform;
 
     private String socialId;  // 로그인한 소셜 타입의 식별자 값(일반 로그인인 경우는 null)
