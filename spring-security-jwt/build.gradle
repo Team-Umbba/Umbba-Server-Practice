@@ -38,6 +38,10 @@ dependencies {
 	implementation group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
 	implementation group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
 
+	// 외부 API 호출을 지원하는 의존성 -> 카카오에 API 요청을 보내기 위함
+	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:3.1.7'
+
+
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.h2database:h2'
 	annotationProcessor 'org.projectlombok:lombok'

@@ -42,18 +42,18 @@ public class UserService {
 
     }
 
-    public AccessTokenDto login(String userId, String passdword) {
+    public AccessTokenDto login(String userId, String password) {
 
         // 1. Login ID/PW를 기반으로 Authentication 객체 생성
         // 이때 Authentication에서 인증 여부를 확인하는 authenticated 값이 false
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userId, passdword);
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userId, password);
 
         // 2. 실제 검증 (입력한 비밀번호에 대한 유효성 체크)
         // authenticate() 메서드가 실행될 때 CustomUserDetailsService 에서 만든 loadUserByUsername 메서드가 실행됨
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
         // 3. 인증 정보를 기반으로 JWT 토큰 생성
-        AccessTokenDto tokenDto = jwtTokenProvider.generateAccessToken(authentication);
+        AccessTokenDto tokenDto = jwtTokenProvider.generateAccessToken(authentication, userId);
 
         return tokenDto;
     }

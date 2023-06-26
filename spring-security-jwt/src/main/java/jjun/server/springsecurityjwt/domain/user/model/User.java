@@ -1,5 +1,6 @@
 package jjun.server.springsecurityjwt.domain.user.model;
 
+import jjun.server.springsecurityjwt.domain.oauth.provider.SocialPlatform;
 import lombok.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
