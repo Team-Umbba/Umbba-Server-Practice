@@ -1,5 +1,6 @@
 package jjun.server.springsecurityjwt.config;
 
+import jjun.server.springsecurityjwt.config.resolver.UserIdResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

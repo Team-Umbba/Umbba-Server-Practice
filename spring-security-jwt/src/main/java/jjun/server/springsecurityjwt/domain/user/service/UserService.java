@@ -53,7 +53,7 @@ public class UserService {
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
         // 3. 인증 정보를 기반으로 JWT 토큰 생성
-        AccessTokenDto tokenDto = jwtTokenProvider.generateAccessToken(authentication, userId);
+        AccessTokenDto tokenDto = jwtTokenProvider.generateAccessToken(authentication);
 
         return tokenDto;
     }

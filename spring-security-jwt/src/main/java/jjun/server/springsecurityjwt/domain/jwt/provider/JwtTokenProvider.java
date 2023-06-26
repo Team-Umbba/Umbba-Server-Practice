@@ -80,7 +80,7 @@ public class JwtTokenProvider {
     }
 
     // Access Token 발급 (유저 정보를 claim에 담기)
-    public AccessTokenDto generateAccessToken(Authentication authentication, String userId) {
+    public AccessTokenDto generateAccessToken(Authentication authentication) {
 
         final Date now = new Date();
         Date accessTokenExpiresIn = new Date(now.getTime() + ACCESS_TOKEN_EXPIRE_TIME);  // 만료 시간 지정
@@ -93,7 +93,7 @@ public class JwtTokenProvider {
 
 
         // private claim 등록
-        claims.put("userId", userId);   // 유저 정보
+        claims.put("userId", authentication.getPrincipal());   // 유저 정보
         claims.put(AUTHORITIES_KEY, getAuthenticationAuthority(authentication));  // 권한 가져오가
 
         String accessToken = Jwts.builder()
@@ -178,7 +178,7 @@ public class JwtTokenProvider {
                 .getBody();
     }
 
-    // JWT 토큰 내용 확인
+    // JWT 토큰 내용 확인  TODO Long 으로 반환하게 할지?
     public String getJwtContents(String token) {
         final Claims claims = getBody(token);
         return (String) claims.get("userId");

@@ -33,7 +33,7 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         String token = resolveToken(request);
 
         if (token != null && jwtTokenProvider.validateToken(token)) {
-            AccessTokenDto accessToken = jwtTokenProvider.generateAccessToken(authentication, email);
+            AccessTokenDto accessToken = jwtTokenProvider.generateAccessToken(authentication);
             RefreshTokenDto refreshToken = jwtTokenProvider.generateRefreshToken();  // TODO 발급한 Refresh Token은 Redis에 유저 아이디와 함께 저장한다.
             response.setStatus(HttpServletResponse.SC_OK);
 
