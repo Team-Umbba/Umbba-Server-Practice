@@ -22,6 +22,7 @@ import java.util.Objects;
 
 /**
  * 소셜 로그인 타입을 구별하기 위한 커스텀 클래스
+ * TODO 얘도 안 쓸 듯
  */
 @Service
 @RequiredArgsConstructor

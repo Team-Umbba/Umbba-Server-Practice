@@ -33,11 +33,10 @@ public class UserService {
 
         User user = User.builder()
                 .email(request.getEmail())
-                .password(request.getPassword())
                 .nickname(request.getNickname())
                 .role(Role.USER)
                 .build();
-        user.passwordEncode(passwordEncoder);
+//        user.passwordEncode(passwordEncoder);
         return userRepository.save(user);
 
     }

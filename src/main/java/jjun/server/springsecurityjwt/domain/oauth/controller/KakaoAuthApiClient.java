@@ -1,10 +1,15 @@
 package jjun.server.springsecurityjwt.domain.oauth.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jjun.server.springsecurityjwt.domain.oauth.controller.dto.response.KakaoAccessTokenResponse;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * Kakao 공식 문서에서 [토큰 받기] 참고
@@ -25,4 +30,44 @@ public interface KakaoAuthApiClient {
             @RequestParam("redirect_uri") String redirectUri,
             @RequestParam("code") String code
     );
+
+
+    /**
+     * 직접 HTTP 통신용 템플릿을 단순화하여 일일이 값 넣어서 요청 보내는 방식
+     */
+    /*
+    public KakaoAccessTokenResponse getKakaoAccessToken(String code) {
+
+        RestTemplate rt = new RestTemplate();  // 스프링에서 지원하는 REST 서비스 호출 방식
+        HttpHeaders headers = new HttpHeaders();
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+
+        // 카카오 공식 문서에 따라 헤더와 바디 값을 구성
+        params.add("grant_type", "authorization_code");
+        params.add("client_id", clientId);
+        params.add("redirect_uri", redirectUri);
+        params.add("code", code);  // 인가 코드 요청에서 받은 인가 코드 값 <- 아마 프론트에서 주실 것!
+
+        HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest = new HttpEntity<>(params, headers);
+        log.info("KakaoTokenRequest: {}", kakaoTokenRequest);
+
+        // 카카오로부터 Access Token 수신
+        ResponseEntity<String> response = rt.exchange(
+                "https://kauth.kakao.com/oauth/token",
+                HttpMethod.POST,
+                kakaoTokenRequest,
+                String.class
+        );
+
+        // JSON Parsing (KakaoAccessTokenResponse)
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        try {
+            KakaoAccessTokenResponse accessTokenResponse = objectMapper.readValue(response.getBody(), KakaoAccessTokenResponse.class);
+            return accessTokenResponse;
+        } catch (JsonProcessingException e) {
+            log.debug("Kakao Access Token JSON Parsing에 실패했습니다.");
+        }
+    }
+     */
 }

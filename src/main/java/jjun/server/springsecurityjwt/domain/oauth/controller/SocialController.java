@@ -1,8 +1,11 @@
 package jjun.server.springsecurityjwt.domain.oauth.controller;
 
+import jjun.server.springsecurityjwt.domain.oauth.controller.dto.request.SocialLoginRequest;
+import jjun.server.springsecurityjwt.domain.oauth.controller.dto.request.SocialLoginRequestDto;
+import jjun.server.springsecurityjwt.domain.oauth.provider.SocialServiceProvider;
+import jjun.server.springsecurityjwt.domain.oauth.service.SocialService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Authorization의 기본은 Header에 정보를 담아서 요청을 보내는 것을 권장!
@@ -13,6 +16,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/social")
 public class SocialController {
+
+    private final SocialServiceProvider socialServiceProvider;
+
+    @PostMapping("/login")
+    public Long login(@RequestHeader("code") String code, @RequestBody SocialLoginRequestDto request) {
+
+        // TODO 이미 가입된 유저인지 확인하는 절차 추가
+        SocialService socialService = socialServiceProvider.getSocialService(request.getSocialPlatform());
+        return socialService.login(SocialLoginRequest.of(code));
+    }
+
+
 
 
 }
