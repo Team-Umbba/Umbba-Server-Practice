@@ -40,10 +40,11 @@ public class User {
     @Column(nullable = false)
     private String refreshToken;
 
-    @Column
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private SocialPlatform socialPlatform;
 
+    @Column(nullable = false)
     private String socialId;  // 로그인한 소셜 타입의 식별자 값(일반 로그인인 경우는 null)
 
 

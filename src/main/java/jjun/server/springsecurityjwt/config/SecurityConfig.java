@@ -1,5 +1,7 @@
 package jjun.server.springsecurityjwt.config;
 
+import jjun.server.springsecurityjwt.domain.jwt.filter.JwtAuthenticationFilter;
+import jjun.server.springsecurityjwt.domain.jwt.provider.CustomJwtAuthenticationEntryPoint;
 import jjun.server.springsecurityjwt.domain.oauth.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -10,6 +12,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.filter.CorsFilter;
 
 @EnableWebSecurity
@@ -19,6 +22,8 @@ public class SecurityConfig {
 
     private final CorsFilter corsFilter;
     private final CustomOAuth2UserService customOAuth2UserService;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CustomJwtAuthenticationEntryPoint customJwtAuthenticationEntryPoint;
 
     /**
      * FilterChainProxy에서 각각의 Filter들이 체인 형식으로 연결되어 수행된다.
@@ -35,11 +40,18 @@ public class SecurityConfig {
 
                 // CSRF 보안 사용 X
                 .and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+
+                // 예외 처리
+                .and()
+                .exceptionHandling()
+                .authenticationEntryPoint(customJwtAuthenticationEntryPoint)
 
                 // Filter 추가
                 .and()
                 .addFilter(corsFilter)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 
                 // URL별 권한 관리 옵션
                 .authorizeRequests()
@@ -49,8 +61,9 @@ public class SecurityConfig {
                 .access("hasRole('ROLE_USER')")
                 .antMatchers("/", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/h2-console/**")  // 기본 페이지, css, image, js 하위 폴더의 파일과 h2-console은 누구나 접근 가능
                 .permitAll()
+                .anyRequest().authenticated()
 
-                // 소셜 로그인 설정
+                // 소셜 로그인 설정  TODO 이 부분을 여기에 꼭 넣어야 할까?
                 .and()
                 .oauth2Login()
                 .userInfoEndpoint().userService(customOAuth2UserService)
