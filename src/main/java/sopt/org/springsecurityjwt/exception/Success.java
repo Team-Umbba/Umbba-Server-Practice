@@ -15,6 +15,7 @@ public enum Success {
     LOGIN_SUCCESS(HttpStatus.OK, "로그인에 성공했습니다."),
     USER_GET_SUCCESS(HttpStatus.OK, "유저 조회에 성공했습니다."),
     REFRESH_SUCCESS(HttpStatus.OK, "Access 토큰 재발급에 성공했습니다."),
+    SOCIAL_LOGIN_SUCCESS(HttpStatus.OK, "소셜 로그인에 성공했습니다."),
 
     /**
      * 201 CREATED
