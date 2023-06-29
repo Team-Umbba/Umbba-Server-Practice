@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import sopt.org.springsecurityjwt.domain.board.dto.request.BoardRequestDto;
 import sopt.org.springsecurityjwt.domain.board.service.BoardService;
 import sopt.org.springsecurityjwt.exception.dto.ApiResponse;
-import sopt.org.springsecurityjwt.domain.user.resolver.UserId;
+import sopt.org.springsecurityjwt.config.resolver.UserId;
 import sopt.org.springsecurityjwt.exception.Success;
 
 import javax.validation.Valid;

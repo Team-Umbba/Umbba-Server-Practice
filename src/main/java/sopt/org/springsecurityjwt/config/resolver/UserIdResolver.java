@@ -1,4 +1,4 @@
-package sopt.org.springsecurityjwt.domain.user.resolver;
+package sopt.org.springsecurityjwt.config.resolver;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
@@ -29,7 +29,7 @@ public class UserIdResolver implements HandlerMethodArgumentResolver {
         final String token = request.getHeader("Authorization");
 
         // 토큰 검증
-        if (!jwtProvider.validateToken(token)) {
+        if (!jwtProvider.validateAccessToken(token)) {
             throw new RuntimeException(String.format("USER_ID를 가져오지 못했습니다. (%s - %s)", parameter.getClass(), parameter.getMethod()));
         }
 

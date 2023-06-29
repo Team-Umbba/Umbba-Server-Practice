@@ -1,4 +1,4 @@
-package sopt.org.springsecurityjwt.domain.user.resolver;
+package sopt.org.springsecurityjwt.config.resolver;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

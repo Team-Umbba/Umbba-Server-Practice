@@ -16,18 +16,14 @@ import java.util.concurrent.TimeUnit;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Token {
+public class RefreshToken {
 
     @Id
     @JsonIgnore
     private Long id;
 
-    private String refresh_token;
+    private String refreshToken;
 
     @TimeToLive(unit = TimeUnit.SECONDS)
     private Integer expiration;
-
-    public void setExpiration(Integer expiration) {
-        this.expiration = expiration;
-    }
 }

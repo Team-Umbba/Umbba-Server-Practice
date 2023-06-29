@@ -6,7 +6,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sopt.org.springsecurityjwt.domain.jwt.provider.JwtProvider;
-import sopt.org.springsecurityjwt.domain.jwt.model.Token;
 import sopt.org.springsecurityjwt.domain.jwt.dto.TokenDto;
 import sopt.org.springsecurityjwt.domain.jwt.repository.TokenRepository;
 import sopt.org.springsecurityjwt.domain.user.dto.request.UserLoginRequestDto;
@@ -17,7 +16,6 @@ import sopt.org.springsecurityjwt.domain.user.model.User;
 import sopt.org.springsecurityjwt.domain.user.repository.UserRepository;
 
 import java.util.Collections;
-import java.util.UUID;
 
 @Service
 @Transactional
@@ -27,7 +25,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
-    private final TokenRepository tokenRepository;
 
     public UserLoginResponseDto login(UserLoginRequestDto request) throws Exception {
         User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() ->
@@ -37,7 +34,8 @@ public class UserService {
             throw new BadCredentialsException("잘못된 계정정보입니다.");
         }
 
-        user.setRefreshToken(createRefreshToken(user));
+        //Refresh 토큰 재발급
+        user.setRefreshToken(jwtProvider.createRefreshToken(user));
 
         return UserLoginResponseDto.builder()
                 .userId(user.getId())
@@ -45,8 +43,8 @@ public class UserService {
                 .email(user.getEmail())
                 .roles(user.getRoles())
                 .token(TokenDto.builder()
-                                .access_token(jwtProvider.createToken(user.getEmail(), user.getRoles()))
-                                .refresh_token(user.getRefreshToken()).build())
+                                .accessToken(jwtProvider.createAccessToken(user.getEmail(), user.getRoles()))
+                                .refreshToken(user.getRefreshToken()).build())
                 .build();
     }
 
@@ -73,53 +71,5 @@ public class UserService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new Exception("계정을 찾을 수 없습니다."));
         return new UserLoginResponseDto(user);
-    }
-
-    // Refresh Token ================
-
-    /**
-     * Refresh 토큰을 생성한다.
-     * Redis 내부에는
-     * refreshToken:userId : tokenValue
-     * 형태로 저장한다.
-     */
-    public String createRefreshToken(User user) {
-        Token token = tokenRepository.save(
-                Token.builder()
-                        .id(user.getId())
-                        .refresh_token(UUID.randomUUID().toString())
-                        .expiration(300)
-                        .build()
-        );
-        return token.getRefresh_token();
-    }
-
-    public Token validRefreshToken(User user, String refreshToken) throws Exception {
-        Token token = tokenRepository.findById(user.getId()).orElseThrow(() -> new Exception("만료된 계정입니다. 로그인을 다시 시도하세요"));
-
-        // 해당유저의 Refresh 토큰 만료 : Redis에 해당 유저의 토큰이 존재하지 않음
-        if (token.getRefresh_token() == null) {
-            return null;
-        } else if (!token.getRefresh_token().equals(refreshToken)) {
-            return null;
-        } else {
-            return token;
-        }
-    }
-
-    public TokenDto refreshAccessToken(TokenDto token) throws Exception {
-        String email = jwtProvider.getEmail(token.getAccess_token());
-        User user = userRepository.findByEmail(email).orElseThrow(() ->
-                new BadCredentialsException("잘못된 계정정보입니다."));
-        Token refreshToken = validRefreshToken(user, token.getRefresh_token());
-
-        if (refreshToken != null) {
-            return TokenDto.builder()
-                    .access_token(jwtProvider.createToken(email, user.getRoles()))
-                    .refresh_token(refreshToken.getRefresh_token())
-                    .build();
-        } else {
-            throw new Exception("로그인을 해주세요");
-        }
     }
 }

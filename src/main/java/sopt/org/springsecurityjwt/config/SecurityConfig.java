@@ -36,9 +36,10 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 // ID, Password 문자열을 Base64로 인코딩하여 전달하는 구조
-                .httpBasic().disable()
-                // 쿠키 기반이 아닌 JWT 기반이므로 사용하지 않음
-                .csrf().disable()
+                .formLogin().disable() // Form Login 사용 X
+                .httpBasic().disable() // HTTP Basic 사용 X
+                .csrf().disable() // 쿠키 기반이 아닌 JWT 기반이므로 사용 X
+
                 // CORS 설정
                 .cors(c -> {
                             CorsConfigurationSource source = request -> {
@@ -57,6 +58,7 @@ public class SecurityConfig {
                 )
                 // Spring Security 세션 정책 : 세션을 생성 및 사용하지 않음
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+
                 .and()
                 // 조건별로 요청 허용/제한 설정
                 .authorizeRequests()
@@ -67,9 +69,11 @@ public class SecurityConfig {
                 // /user 로 시작하는 요청은 USER 권한이 있는 유저에게만 허용
                 .antMatchers("/user/**", "/board/**").hasRole("USER")
                 .anyRequest().denyAll()
+
                 .and()
                 // JWT 인증 필터 적용
                 .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)
+
                 // 에러 핸들링
                 .exceptionHandling()
                 .accessDeniedHandler(new AccessDeniedHandler() {
@@ -85,7 +89,7 @@ public class SecurityConfig {
                 .authenticationEntryPoint(new AuthenticationEntryPoint() {
                     @Override
                     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-                        // 인증문제가 발생했을 때 이 부분을 호출한다.
+                        // 인증문제가 발생했을 때 이 부분을 호출한다. (🔥Access Token 만료)
                         response.setStatus(401);
                         response.setCharacterEncoding("utf-8");
                         response.setContentType("text/html; charset=UTF-8");

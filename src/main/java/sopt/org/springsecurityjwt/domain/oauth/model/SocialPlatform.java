@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 public enum SocialPlatform {
     KAKAO("카카오"),
     GOOGLE("구글"),
+    APPLE("애플")
     ;
 
     private final String value;

@@ -3,6 +3,7 @@ package sopt.org.springsecurityjwt.domain.user.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import sopt.org.springsecurityjwt.domain.jwt.provider.JwtProvider;
 import sopt.org.springsecurityjwt.domain.user.dto.request.UserLoginRequestDto;
 import sopt.org.springsecurityjwt.domain.user.dto.response.UserLoginResponseDto;
 import sopt.org.springsecurityjwt.domain.user.service.UserService;
@@ -18,6 +19,7 @@ import javax.validation.Valid;
 public class UserController {
 
     private final UserService userService;
+    private final JwtProvider jwtProvider;
 
     @PostMapping("/signup")
     @ResponseStatus(HttpStatus.CREATED)
@@ -40,6 +42,6 @@ public class UserController {
     @GetMapping("/refresh")
     @ResponseStatus(HttpStatus.OK)
     public ApiResponse<TokenDto> refresh(@RequestBody TokenDto token) throws Exception {
-        return ApiResponse.success(Success.REFRESH_SUCCESS, userService.refreshAccessToken(token));
+        return ApiResponse.success(Success.REFRESH_SUCCESS, jwtProvider.refreshAccessToken(token));
     }
 }
