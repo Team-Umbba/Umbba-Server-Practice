@@ -33,7 +33,6 @@ public class KakaoSocialService extends SocialService {
     private String redirectUri;
 
     private final UserRepository userRepository;
-
     private final JwtProvider jwtProvider;
 
     private final KakaoAuthApiClient kakaoAuthApiClient;
@@ -53,39 +52,29 @@ public class KakaoSocialService extends SocialService {
         // Access Token으로 유저 정보 불러오기
         KakaoUserResponse userResponse = kakaoApiClient.getUserInformation("Bearer " + tokenResponse.getAccessToken());
 
-        Long socialId = userResponse.getId();
-        User loginUser = userRepository.findBySocialId(socialId).orElseGet(
-                () -> { //신규 회원 가입의 경우이므로 User 객체 생성
-                    User newUser = User.builder()
-                                        .socialPlatform(SocialPlatform.KAKAO)
-                                        .socialId(socialId).build();
-                    newUser.setRoles(Collections.singletonList(Authority.builder().name("ROLE_USER").build()));
-                    userRepository.save(newUser);
-                    return newUser;
-                }
-        );
+        Long socialId = userResponse.getId(); //Social ID를 조회
+        User loginUser = userRepository.findBySocialId(socialId).orElse(createNewUser(socialId)); //신규 회원 가입의 경우에는 User 객체 생성
 
         loginUser.updateSocialInfo(userResponse.getKakaoAccount().getProfile().getNickname(),
                                   userResponse.getKakaoAccount().getProfile().getProfileImageUrl(),
                                   tokenResponse.getAccessToken(), tokenResponse.getRefreshToken()); //Kakao의 Access 토큰과 Refresh 토큰도 매번 업데이트
 
-        //로그인마다 서비스 자체의 Refresh Token 새로 발급
-        loginUser.setRefreshToken(jwtProvider.createRefreshToken(loginUser));
+        //로그인마다 서비스 자체의 Token 새로 발급
+        String refreshToken = jwtProvider.createRefreshToken(loginUser);
+        String accessToken = jwtProvider.createAccessToken(Long.toString(loginUser.getId()), loginUser.getRoles());
 
-        return UserLoginResponseDto.builder()
-                .userId(loginUser.getId())
-                .username(loginUser.getUsername())
-                .gender(loginUser.getGender())
-                .bornYear(loginUser.getBornYear())
-                .roles(loginUser.getRoles())
-                .token(TokenDto.builder()
-                        .accessToken(jwtProvider.createAccessToken(Long.toString(loginUser.getId()), loginUser.getRoles()))
-                        .refreshToken(loginUser.getRefreshToken()).build())
-                .socialPlatform(loginUser.getSocialPlatform())
-                .socialNickname(loginUser.getSocialNickname())
-                .socialProfileImage(loginUser.getSocialProfileImage())
-                .socialAccessToken(loginUser.getSocialAccessToken())
-                .socialRefreshToken(loginUser.getSocialRefreshToken())
-                .build();
+        loginUser.setRefreshToken(refreshToken);
+        return UserLoginResponseDto.of(loginUser, accessToken);
+    }
+
+    private User createNewUser(Long socialId) {
+        User newUser = User.builder()
+                .socialPlatform(SocialPlatform.KAKAO)
+                .socialId(socialId).build();
+
+        newUser.setRoles(Collections.singletonList(Authority.builder().name("ROLE_USER").build()));
+        userRepository.save(newUser);
+
+        return newUser;
     }
 }

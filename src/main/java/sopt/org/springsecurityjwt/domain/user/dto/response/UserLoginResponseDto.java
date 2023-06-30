@@ -4,6 +4,7 @@ import lombok.*;
 import sopt.org.springsecurityjwt.domain.jwt.dto.TokenDto;
 import sopt.org.springsecurityjwt.domain.user.model.SocialPlatform;
 import sopt.org.springsecurityjwt.domain.user.model.Authority;
+import sopt.org.springsecurityjwt.domain.user.model.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,4 +35,14 @@ public class UserLoginResponseDto {
     private String socialAccessToken;
 
     private String socialRefreshToken;
+
+    public static UserLoginResponseDto of(User loginUser, String accessToken) {
+        TokenDto token = TokenDto.builder().accessToken(accessToken).refreshToken(loginUser.getRefreshToken()).build();
+
+        return new UserLoginResponseDto(
+                loginUser.getId(), loginUser.getUsername(), loginUser.getGender(), loginUser.getBornYear(),
+                loginUser.getRoles(), token,
+                loginUser.getSocialPlatform(), loginUser.getSocialNickname(), loginUser.getSocialProfileImage(),
+                loginUser.getSocialAccessToken(), loginUser.getSocialRefreshToken());
+    }
 }
