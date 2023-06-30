@@ -1,4 +1,4 @@
-package sopt.org.springsecurityjwt.domain.oauth.dto.request;
+package sopt.org.springsecurityjwt.domain.user.dto.request;
 
 import lombok.*;
 

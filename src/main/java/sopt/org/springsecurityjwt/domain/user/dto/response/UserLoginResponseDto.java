@@ -2,8 +2,8 @@ package sopt.org.springsecurityjwt.domain.user.dto.response;
 
 import lombok.*;
 import sopt.org.springsecurityjwt.domain.jwt.dto.TokenDto;
+import sopt.org.springsecurityjwt.domain.user.model.SocialPlatform;
 import sopt.org.springsecurityjwt.domain.user.model.Authority;
-import sopt.org.springsecurityjwt.domain.user.model.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,18 +15,23 @@ import java.util.List;
 public class UserLoginResponseDto {
     private Long userId;
 
-    private String nickname;
+    private String username;
 
-    private String email;
+    private String gender;
+
+    private Integer bornYear;
 
     private List<Authority> roles = new ArrayList<>();
 
     private TokenDto token;
 
-    public UserLoginResponseDto(User user) {
-        this.userId = user.getId();
-        this.nickname = user.getNickname();
-        this.email = user.getEmail();
-        this.roles = user.getRoles();
-    }
+    private SocialPlatform socialPlatform;
+
+    private String socialNickname;
+
+    private String socialProfileImage;
+
+    private String socialAccessToken;
+
+    private String socialRefreshToken;
 }

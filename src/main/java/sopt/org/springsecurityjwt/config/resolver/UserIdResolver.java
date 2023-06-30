@@ -20,7 +20,7 @@ public class UserIdResolver implements HandlerMethodArgumentResolver {
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
-        return parameter.hasParameterAnnotation(UserId.class) && String.class.equals(parameter.getParameterType());
+        return parameter.hasParameterAnnotation(UserId.class) && Long.class.equals(parameter.getParameterType());
     }
 
     @Override
@@ -33,7 +33,7 @@ public class UserIdResolver implements HandlerMethodArgumentResolver {
             throw new RuntimeException(String.format("USER_ID를 가져오지 못했습니다. (%s - %s)", parameter.getClass(), parameter.getMethod()));
         }
 
-        // 유저 이메일 반환
-        return jwtProvider.getEmail(token.split(" ")[1].trim());
+        // 유저 아이디 반환
+        return Long.parseLong(jwtProvider.getId(token.split(" ")[1].trim()));
     }
 }

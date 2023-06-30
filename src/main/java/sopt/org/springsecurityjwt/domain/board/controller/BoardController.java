@@ -21,9 +21,9 @@ public class BoardController {
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResponse create(
-            @UserId String email,
+            @UserId Long userId,
             @RequestBody @Valid final BoardRequestDto request) {
-        boardService.create(email, request);
+        boardService.create(userId, request);
         return ApiResponse.success(Success.CREATE_BOARD_SUCCESS);
     }
 }

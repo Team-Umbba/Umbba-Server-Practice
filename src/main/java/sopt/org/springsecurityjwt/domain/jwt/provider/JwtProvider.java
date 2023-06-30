@@ -48,8 +48,8 @@ public class JwtProvider {
     }
 
     // Access 토큰 생성
-    public String createAccessToken(String email, List<Authority> roles) {
-        Claims claims = Jwts.claims().setSubject(email);
+    public String createAccessToken(String userId, List<Authority> roles) {
+        Claims claims = Jwts.claims().setSubject(userId);
         claims.put("roles", roles);
         Date now = new Date();
         return Jwts.builder()
@@ -116,13 +116,13 @@ public class JwtProvider {
 
     // Access 토큰 재발급
     public TokenDto refreshAccessToken(TokenDto token) throws Exception {
-        String email = getEmail(token.getAccessToken());
-        User user = userRepository.findByEmail(email).orElseThrow(() ->
+        String userId = getId(token.getAccessToken());
+        User user = userRepository.findById(Long.parseLong(userId)).orElseThrow(() ->
                 new BadCredentialsException("잘못된 계정정보입니다."));
 
         if (validRefreshToken(user, token.getRefreshToken())) {
             return TokenDto.builder()
-                    .accessToken(createAccessToken(email, user.getRoles()))
+                    .accessToken(createAccessToken(userId, user.getRoles()))
                     .refreshToken(token.getRefreshToken())
                     .build();
         } else {
@@ -134,12 +134,12 @@ public class JwtProvider {
     // 권한정보 획득
     // Spring Security 인증과정에서 권한확인을 위한 기능
     public Authentication getAuthentication(String token) {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(this.getEmail(token));
+        UserDetails userDetails = userDetailsService.loadUserByUsername(this.getId(token));
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
     // 토큰에 담겨있는 유저 email 획득
-    public String getEmail(String token) {
+    public String getId(String token) {
         // 만료된 토큰에 대해 parseClaimsJws를 수행하면 io.jsonwebtoken.ExpiredJwtException이 발생한다.
         try {
             Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody().getSubject();

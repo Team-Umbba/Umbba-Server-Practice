@@ -1,9 +1,9 @@
-package sopt.org.springsecurityjwt.domain.oauth.dto.request;
+package sopt.org.springsecurityjwt.domain.user.dto.request;
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import sopt.org.springsecurityjwt.domain.oauth.model.SocialPlatform;
+import sopt.org.springsecurityjwt.domain.user.model.SocialPlatform;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)

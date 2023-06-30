@@ -1,4 +1,4 @@
-package sopt.org.springsecurityjwt.domain.oauth.dto.response.kakao;
+package sopt.org.springsecurityjwt.domain.user.dto.response.kakao;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;

@@ -1,9 +1,9 @@
-package sopt.org.springsecurityjwt.domain.oauth.service;
+package sopt.org.springsecurityjwt.domain.user.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import sopt.org.springsecurityjwt.domain.oauth.model.SocialPlatform;
-import sopt.org.springsecurityjwt.domain.oauth.service.kakao.KakaoSocialService;
+import sopt.org.springsecurityjwt.domain.user.model.SocialPlatform;
+import sopt.org.springsecurityjwt.domain.user.service.kakao.KakaoSocialService;
 
 import javax.annotation.PostConstruct;
 import java.util.HashMap;

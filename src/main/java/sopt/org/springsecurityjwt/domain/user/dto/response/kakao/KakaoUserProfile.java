@@ -1,4 +1,4 @@
-package sopt.org.springsecurityjwt.domain.oauth.dto.response.kakao;
+package sopt.org.springsecurityjwt.domain.user.dto.response.kakao;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -9,7 +9,8 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class KakaoAccount {
+public class KakaoUserProfile {
 
-    private KakaoUserProfile profile;
+    private String nickname;
+    private String profileImageUrl;
 }
