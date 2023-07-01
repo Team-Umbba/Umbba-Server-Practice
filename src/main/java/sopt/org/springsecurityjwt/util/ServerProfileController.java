@@ -1,4 +1,4 @@
-package sopt.org.springsecurityjwt.config.etc;
+package sopt.org.springsecurityjwt.util;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;

@@ -3,7 +3,7 @@ package sopt.org.springsecurityjwt.domain.board.model;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import sopt.org.springsecurityjwt.config.etc.AuditingTimeEntity;
+import sopt.org.springsecurityjwt.util.AuditingTimeEntity;
 import sopt.org.springsecurityjwt.domain.user.model.User;
 
 import javax.persistence.*;

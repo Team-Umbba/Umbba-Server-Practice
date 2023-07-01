@@ -47,6 +47,13 @@ dependencies {
 	// Social Login
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:3.1.7'
 	implementation 'com.google.code.gson:gson:2.10.1'
+
+	// Slack Webhook
+	implementation 'com.slack.api:slack-api-client:1.28.0'
+	implementation 'com.google.code.gson:gson:2.10.1'
+	implementation 'com.squareup.okhttp3:okhttp:4.10.0'
+	implementation 'com.slack.api:slack-app-backend:1.28.0'
+	implementation 'com.slack.api:slack-api-model:1.28.0'
 }
 
 tasks.named('test') {

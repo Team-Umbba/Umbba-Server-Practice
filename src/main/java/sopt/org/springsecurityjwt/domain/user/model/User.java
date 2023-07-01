@@ -1,7 +1,7 @@
 package sopt.org.springsecurityjwt.domain.user.model;
 
 import lombok.*;
-import sopt.org.springsecurityjwt.config.etc.AuditingTimeEntity;
+import sopt.org.springsecurityjwt.util.AuditingTimeEntity;
 import sopt.org.springsecurityjwt.domain.user.social.SocialPlatform;
 
 import javax.persistence.*;

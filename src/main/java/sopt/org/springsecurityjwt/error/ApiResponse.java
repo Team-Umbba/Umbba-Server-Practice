@@ -1,10 +1,12 @@
 package sopt.org.springsecurityjwt.error;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)

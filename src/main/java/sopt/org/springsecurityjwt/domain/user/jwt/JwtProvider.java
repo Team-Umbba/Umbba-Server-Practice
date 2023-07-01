@@ -20,7 +20,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.util.Base64;
 import java.util.Date;
-import java.util.UUID;
 
 import static java.util.Objects.isNull;
 
