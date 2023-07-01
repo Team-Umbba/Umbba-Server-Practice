@@ -2,6 +2,7 @@ package sopt.org.springsecurityjwt.domain.user.repository;
 
 import org.springframework.data.repository.Repository;
 import sopt.org.springsecurityjwt.domain.user.model.User;
+import sopt.org.springsecurityjwt.domain.user.social.SocialPlatform;
 
 import java.util.Optional;
 
@@ -12,7 +13,8 @@ public interface UserRepository extends Repository<User, Long> {
 
     // READ
     Optional<User> findById(Long id);
-    Optional<User> findBySocialId(Long socialId);
+    boolean existsBySocialPlatformAndSocialId(SocialPlatform socialPlatform, String socialId);
+    Optional<User> findBySocialPlatformAndSocialId(SocialPlatform socialPlatform, String socialId);
 
     // UPDATE
 

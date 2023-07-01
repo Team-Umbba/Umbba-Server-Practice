@@ -7,8 +7,8 @@ import sopt.org.springsecurityjwt.domain.board.dto.request.BoardRequestDto;
 import sopt.org.springsecurityjwt.domain.board.model.Board;
 import sopt.org.springsecurityjwt.domain.board.repository.BoardRepository;
 import sopt.org.springsecurityjwt.domain.user.model.User;
-import sopt.org.springsecurityjwt.exception.Error;
-import sopt.org.springsecurityjwt.exception.model.NotFoundException;
+import sopt.org.springsecurityjwt.error.ErrorType;
+import sopt.org.springsecurityjwt.error.CustomException;
 import sopt.org.springsecurityjwt.domain.user.repository.UserRepository;
 
 @Service
@@ -21,7 +21,7 @@ public class BoardService {
     @Transactional
     public void create(Long userId, BoardRequestDto request) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException(Error.NOT_FOUND_USER_EXCEPTION, Error.NOT_FOUND_USER_EXCEPTION.getMessage()));
+                .orElseThrow(() -> new CustomException(ErrorType.INVALID_USER));
 
         Board newBoard = Board.newInstance(
                 user,

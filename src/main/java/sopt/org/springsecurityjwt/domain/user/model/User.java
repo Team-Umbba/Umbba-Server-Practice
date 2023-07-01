@@ -1,11 +1,10 @@
 package sopt.org.springsecurityjwt.domain.user.model;
 
 import lombok.*;
-import sopt.org.springsecurityjwt.domain.common.AuditingTimeEntity;
+import sopt.org.springsecurityjwt.config.etc.AuditingTimeEntity;
+import sopt.org.springsecurityjwt.domain.user.social.SocialPlatform;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -27,18 +26,9 @@ public class User extends AuditingTimeEntity {
 //    @Column(nullable = false)
     private Integer bornYear;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @Builder.Default
-    private List<Authority> roles = new ArrayList<>();
-
-    public void setRoles(List<Authority> role) {
-        this.roles = role;
-        role.forEach(o -> o.setUser(this));
-    }
-
     private String refreshToken;
 
-    public void setRefreshToken(String refreshToken) { // 추가!
+    public void updateRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
     }
 
@@ -47,7 +37,7 @@ public class User extends AuditingTimeEntity {
     private SocialPlatform socialPlatform;
 
     @Column(nullable = false) // 이걸 PK로 가져갈지 고민
-    private Long socialId;
+    private String socialId;
 
     private String socialNickname;
 
@@ -55,18 +45,18 @@ public class User extends AuditingTimeEntity {
 
     private String socialAccessToken;
 
-    private String socialRefreshToken;
+//    private String socialRefreshToken;
     //
 
     // 로그인 새롭게 할 때마다 해당 필드들 업데이트
-    public void updateSocialInfo(String socialNickname, String socialProfileImage, String socialAccessToken, String socialRefreshToken) {
+    public void updateSocialInfo(String socialNickname, String socialProfileImage, String socialAccessToken/*, String socialRefreshToken*/) {
         this.socialNickname = socialNickname;
         this.socialProfileImage = socialProfileImage;
         this.socialAccessToken = socialAccessToken;
-        this.socialRefreshToken = socialRefreshToken;
+//        this.socialRefreshToken = socialRefreshToken;
     }
 
-    public User(SocialPlatform socialPlatform, Long socialId) {
+    public User(SocialPlatform socialPlatform, String socialId) {
         this.socialPlatform = socialPlatform;
         this.socialId = socialId;
     }

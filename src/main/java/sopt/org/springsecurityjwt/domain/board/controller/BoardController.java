@@ -5,11 +5,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import sopt.org.springsecurityjwt.domain.board.dto.request.BoardRequestDto;
 import sopt.org.springsecurityjwt.domain.board.service.BoardService;
-import sopt.org.springsecurityjwt.exception.dto.ApiResponse;
-import sopt.org.springsecurityjwt.config.resolver.UserId;
-import sopt.org.springsecurityjwt.exception.Success;
+import sopt.org.springsecurityjwt.domain.user.jwt.JwtProvider;
+import sopt.org.springsecurityjwt.error.*;
 
 import javax.validation.Valid;
+import java.security.Principal;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,9 +21,10 @@ public class BoardController {
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResponse create(
-            @UserId Long userId,
-            @RequestBody @Valid final BoardRequestDto request) {
-        boardService.create(userId, request);
-        return ApiResponse.success(Success.CREATE_BOARD_SUCCESS);
+            @RequestBody @Valid final BoardRequestDto request,
+            Principal principal) {
+
+        boardService.create(JwtProvider.getUserFromPrincial(principal), request);
+        return ApiResponse.success(SuccessType.CREATE_BOARD_SUCCESS);
     }
 }
