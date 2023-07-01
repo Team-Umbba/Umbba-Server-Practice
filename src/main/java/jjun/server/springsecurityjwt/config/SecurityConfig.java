@@ -59,7 +59,7 @@ public class SecurityConfig {
                 .access("hasAnyRole('ROLE_USER', 'ROLE_GUEST')")
                 .antMatchers("/user/**")
                 .access("hasRole('ROLE_USER')")
-                .antMatchers("/", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/h2-console/**", "/oauth/**", "/social/**", "/api/**")  // 기본 페이지, css, image, js 하위 폴더의 파일과 h2-console은 누구나 접근 가능
+                .antMatchers("/", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/h2-console/**", "/oauth/**", "/social/**", "/api/**", "/login/**", "/kakao/**")  // 기본 페이지, css, image, js 하위 폴더의 파일과 h2-console은 누구나 접근 가능
                 .permitAll()
                 .anyRequest().authenticated()
 

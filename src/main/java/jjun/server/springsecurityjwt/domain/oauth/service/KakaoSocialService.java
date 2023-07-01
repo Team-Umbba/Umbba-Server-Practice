@@ -25,8 +25,8 @@ public class KakaoSocialService extends SocialService {
 
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
     private String clientId;
-    @Value("${spring.security.oauth2.client.registration.kakao.client-secret}")
-    private String clientSecret;
+    /*@Value("${spring.security.oauth2.client.registration.kakao.client-secret}")
+    private String clientSecret;*/
 
     private final UserRepository userRepository;
 
