@@ -120,11 +120,12 @@ public class AuthService {
     private String login(SocialPlatform socialPlatform, String socialAccessToken) throws NoSuchAlgorithmException, InvalidKeySpecException {
         switch (socialPlatform.toString()) {
             case "APPLE":
-                return appleLoginService.getAppleId(socialAccessToken);
+                return null; //appleLoginService.getAppleId(socialAccessToken);
             case "KAKAO":
                 return kakaoLoginService.getKakaoId(socialAccessToken);
             default:
                 throw new CustomException(ErrorType.INVALID_SOCIAL_ACCESS_TOKEN);
         }
+
     }
 }
