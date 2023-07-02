@@ -47,12 +47,11 @@ public class OAuth2Attributes {
      * OAuth2Attribute 객체 생성 이후, OAuth2UserInfo에서 socialId(식별값), nickname, email을 가져와서
      * User로 build (role은 GUEST로 설정)
      */
-    public User toUserEntity(SocialPlatform socialPlatform, OAuth2UserInfo oAuth2UserInfo) {
+    /*public User toUserEntity(SocialPlatform socialPlatform, OAuth2UserInfo oAuth2UserInfo) {
         return User.builder()
                 .socialPlatform(socialPlatform)
                 .socialId(oAuth2UserInfo.getProviderId())
-                .email(UUID.randomUUID() + "@socialUser.com")
                 .nickname(oAuth2UserInfo.getName())
                 .build();
-    }
+    }*/
 }

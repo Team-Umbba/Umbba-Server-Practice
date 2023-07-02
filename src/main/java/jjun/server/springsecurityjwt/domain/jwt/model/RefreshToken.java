@@ -15,6 +15,11 @@ import java.util.concurrent.TimeUnit;
 @AllArgsConstructor
 public class RefreshToken {
 
+    public RefreshToken(String refreshToken, Long userId) {
+        this.refreshToken = refreshToken;
+        this.userId = userId;
+    }
+
     @Id
     private String refreshToken;
 
@@ -22,5 +27,6 @@ public class RefreshToken {
 
     @TimeToLive(unit = TimeUnit.SECONDS)
     private Integer expiration;  // Redis에서 만료시간이 되면 알아서 삭제 (서버에서 일일이 확인하는 작업의 부담을 덜어주는 역할)
+
 
 }

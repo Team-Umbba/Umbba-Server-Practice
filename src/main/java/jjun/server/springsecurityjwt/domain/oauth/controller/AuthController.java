@@ -6,7 +6,10 @@ import jjun.server.springsecurityjwt.domain.jwt.dto.TokenReissuedResponseDto;
 import jjun.server.springsecurityjwt.domain.jwt.provider.JwtTokenProvider;
 import jjun.server.springsecurityjwt.domain.oauth.controller.dto.request.SocialLoginRequest;
 import jjun.server.springsecurityjwt.domain.oauth.controller.dto.request.SocialLoginRequestDto;
+import jjun.server.springsecurityjwt.domain.oauth.controller.dto.response.UserLoginResponseDto;
 import jjun.server.springsecurityjwt.domain.oauth.provider.SocialServiceProvider;
+import jjun.server.springsecurityjwt.domain.oauth.service.AuthService;
+import jjun.server.springsecurityjwt.domain.oauth.service.KakaoLoginService;
 import jjun.server.springsecurityjwt.domain.oauth.service.SocialService;
 import jjun.server.springsecurityjwt.domain.user.model.User;
 import jjun.server.springsecurityjwt.domain.user.model.UserRepository;
@@ -26,41 +29,36 @@ import javax.validation.Valid;
  */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/social")
-public class SocialController {
+public class AuthController {
 
     private final SocialServiceProvider socialServiceProvider;
-    private final JwtTokenProvider jwtTokenProvider;
-    private final UserRepository userRepository;
+    private final AuthService authService;
+    private final KakaoLoginService kakaoLoginService;  // TODO 클라한테 넘겨받으므로 빼도 되는 부분
 
     @PostMapping("/login")
-    public Long login(@RequestHeader("code") String code, @RequestBody SocialLoginRequestDto request) {
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<UserLoginResponseDto> login(
+            @RequestHeader("Authorization") String socialAccessToken,
+            @RequestBody SocialLoginRequestDto request) {
 
-        // TODO 이미 가입된 유저인지 확인하는 절차 추가
-        SocialService socialService = socialServiceProvider.getSocialService(request.getSocialPlatform());
-        return socialService.login(SocialLoginRequest.of(code));
+//        SocialService socialService = socialServiceProvider.getSocialService(request.getSocialPlatform());
+        return ApiResponse.success(Success.SOCIAL_LOGIN_SUCCESS, authService.login(socialAccessToken, request));
     }
 
     @PostMapping("/reissued")
     @ResponseStatus(HttpStatus.OK)
     public ApiResponse<TokenReissuedResponseDto> reissued(@RequestBody @Valid final TokenReissuedRequestDto request) {
-
-        // Refresh Token 만료 검증 -> 만료 시 재로그인을 해야 함
-        if (!jwtTokenProvider.validateToken(request.getRefreshToken())) {
-            throw new CustomException(Error.EXPIRED_JWT_TOKEN);
-        }
-
-        // RefreshToken을 이용해 토큰 재발급
-        TokenReissuedResponseDto response = jwtTokenProvider.reissueToken(request);
-        Long userId = jwtTokenProvider.getUserFromJwt(response.getAccessToken());
-        User user = userRepository.findById(userId).orElseThrow(
-                () -> new CustomException(Error.NO_EXISTS_USER)
-        );
-        user.updateRefreshToken(response.getRefreshToken());
-        return ApiResponse.success(Success.AUTHORIZATION_SUCCESS, response);
+        return ApiResponse.success(Success.AUTHORIZATION_SUCCESS, authService.reissuedToken(request));
     }
 
 
+    @PostMapping("/kakao")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse kakaoAccessToken(
+            @RequestHeader("Authorization") String code) {
+
+        return ApiResponse.success(Success.KAKAO_ACCESS_TOKEN_SUCCESS, kakaoLoginService.getKakaoAccessToken(code));
+    }
 
 
 }

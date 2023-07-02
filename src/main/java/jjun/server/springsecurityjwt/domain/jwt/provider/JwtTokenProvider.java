@@ -131,6 +131,28 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    public String generateAccessToken(Long userId) {
+
+        final Date now = new Date();
+        Date accessTokenExpiresIn = new Date(now.getTime() + ACCESS_TOKEN_EXPIRE_TIME);  // 만료 시간 지정
+
+        // 클레임 생성 -> Payload : 등록된 클레임 중 전부를 담아야 하는 것 X (필요에 따라 선택적으로 담아주면 된다)
+        final Claims claims = Jwts.claims()
+                .setSubject(accessTokenSubject)  // token 이름(고정된 값X, 어떤 값인지 구분하기 위함)
+                .setIssuedAt(now)
+                .setExpiration(accessTokenExpiresIn);  // milliseconds 단위 (*1000 = 1초) => 만료시간 2시간으로 지정
+
+
+        // private claim 등록
+        claims.put("userId", userId);   // 유저 정보
+
+        return Jwts.builder()
+                .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
+                .setClaims(claims)
+                .signWith(getSigningKey())
+                .compact();
+    }
+
     private Key getSigningKey() {
         return Keys.secretKeyFor(SignatureAlgorithm.HS512);
     }
@@ -206,7 +228,12 @@ public class JwtTokenProvider {
 
         // TODO 재발급을 Access + Refresh 모두 처리해줘도 되는지?
         // Refresh Token의 유효성 검사를 통과하면 재발급 진행
-        final TokenDto reissuedToken = issueToken(tokenFromRedis.getUserId());
+        final String reissuedAccessToken = generateAccessToken(tokenFromRedis.getUserId());
+        final TokenDto reissuedToken = TokenDto.builder()
+                .accessToken(reissuedAccessToken)   // 얘는 새로 발급
+                .refreshToken(request.getRefreshToken())  // 얘는 기존
+                .build();
+        // TODO 문제점 - Redis에 있는 토큰의 업데이트가 안됨 -> 위처럼 해주면 업데이트 할 필요 X
         return TokenReissuedResponseDto.of(reissuedToken.getAccessToken(), reissuedToken.getRefreshToken());
     }
 

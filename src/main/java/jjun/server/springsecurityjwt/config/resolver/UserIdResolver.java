@@ -37,7 +37,7 @@ public class UserIdResolver implements HandlerMethodArgumentResolver {
         // 유저 아이디 반환
         final Long tokenContents = jwtTokenProvider.getUserFromJwt(token);
         try {
-            return Long.parseLong(tokenContents);
+            return tokenContents;
         } catch (NumberFormatException e) {
             throw new RuntimeException(String.format("USER_ID를 가져오지 못했습니다."));
         }
