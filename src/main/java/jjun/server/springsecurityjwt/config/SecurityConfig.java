@@ -35,11 +35,7 @@ public class SecurityConfig {
         http
                 .formLogin().disable()    // Form Login 사용 X
                 .httpBasic().disable()    // httpBasic 사용 X
-                .csrf().disable()
-                .headers().frameOptions().disable()
-
-                // CSRF 보안 사용 X
-                .and()
+                .csrf().disable()         // CSRF 보안 사용 X
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
@@ -48,18 +44,21 @@ public class SecurityConfig {
                 .exceptionHandling()
                 .authenticationEntryPoint(customJwtAuthenticationEntryPoint)
 
+
+                // URL별 권한 관리 옵션
+                .and()
+                .authorizeHttpRequests()
+                .antMatchers(AUTH_PERMIT_LIST)  // 기본 페이지, css, image, js 하위 폴더의 파일과 h2-console은 누구나 접근 가능
+                .permitAll()
+                .anyRequest().authenticated()
+
                 // Filter 추가
                 .and()
 //                .addFilter(corsFilter)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 
-                // URL별 권한 관리 옵션
-                .authorizeRequests()
-                .antMatchers( )  // 기본 페이지, css, image, js 하위 폴더의 파일과 h2-console은 누구나 접근 가능
-                .permitAll()
-                .anyRequest().authenticated()
 
-                // 소셜 로그인 설정  TODO 이 부분을 여기에 꼭 넣어야 할까?
+        // 소셜 로그인 설정  TODO 이 부분을 여기에 꼭 넣어야 할까?
 //                .and()
 //                .oauth2Login()
 //                .userInfoEndpoint().userService(customOAuth2UserService)

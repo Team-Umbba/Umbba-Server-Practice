@@ -27,7 +27,7 @@ public class KakaoLoginService extends SocialService {
     private String CLIENT_ID;
     @Value("${spring.security.oauth2.client.registration.kakao.redirect-uri}")
     private String REDIRECT_URI;
-    @Value("${spring.security.oauth2.client.registration.kakao.authorizarion-grant-type}")
+    @Value("${spring.security.oauth2.client.registration.kakao.authorization-grant-type}")
     private String GRANT_TYPE;
 
     /*@Value("${spring.security.oauth2.client.registration.kakao.client-secret}")

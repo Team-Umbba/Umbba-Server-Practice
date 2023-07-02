@@ -10,12 +10,14 @@ import jjun.server.springsecurityjwt.domain.oauth.controller.dto.request.SocialL
 import jjun.server.springsecurityjwt.domain.oauth.controller.dto.request.SocialLoginRequestDto;
 import jjun.server.springsecurityjwt.domain.oauth.controller.dto.response.UserLoginResponseDto;
 import jjun.server.springsecurityjwt.domain.oauth.provider.SocialPlatform;
+import jjun.server.springsecurityjwt.domain.user.model.Role;
 import jjun.server.springsecurityjwt.domain.user.model.User;
 import jjun.server.springsecurityjwt.domain.user.model.UserRepository;
 import jjun.server.springsecurityjwt.exception.Error;
 import jjun.server.springsecurityjwt.exception.Success;
 import jjun.server.springsecurityjwt.exception.model.CustomException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import javax.validation.Valid;
 import java.security.NoSuchAlgorithmException;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -32,7 +35,7 @@ public class AuthService {
 
     private final SocialService socialService;
     private final KakaoLoginService kakaoLoginService;
-    private final AppleLoginService appleLoginService;
+//    private final AppleLoginService appleLoginService;
 
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
@@ -47,8 +50,9 @@ public class AuthService {
         boolean isRegistered = isUserBySocialAndSocialId(socialPlatform, socialId);
         if (!isRegistered) {
             User user = User.builder()
+                    .role(Role.USER)
                     .socialPlatform(socialPlatform)
-                    .socialNickname(socialId)
+                    .socialId(socialId)
                     .build();
 
             userRepository.save(user);
@@ -95,6 +99,7 @@ public class AuthService {
 
     private String getSocialId(SocialPlatform socialPlatform, String socialAccessToken) {
 
+        log.info("socialPlatform: {}", socialPlatform);
         switch (socialPlatform.toString()) {
 //            case "APPLE":
 //                return appleLoginService.getAppleId(socialAccessToken);
