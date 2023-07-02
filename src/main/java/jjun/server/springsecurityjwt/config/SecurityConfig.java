@@ -25,6 +25,10 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomJwtAuthenticationEntryPoint customJwtAuthenticationEntryPoint;
 
+    private static final String[] AUTH_PERMIT_LIST = {
+            "/", "/social/**", "/oauth/**", "/api/**", "/login/**", "/kakao/**"
+    };
+
     /**
      * FilterChainProxy에서 각각의 Filter들이 체인 형식으로 연결되어 수행된다.
      * 사용자가 처음 인증 요청을 보내면, FilterChainProxy에게 요청을 위임하게 되는데, 아래 등록된 Bean을 가장 먼저 찾는 것이다.
@@ -50,23 +54,19 @@ public class SecurityConfig {
 
                 // Filter 추가
                 .and()
-                .addFilter(corsFilter)
-//                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+//                .addFilter(corsFilter)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 
                 // URL별 권한 관리 옵션
                 .authorizeRequests()
-                .antMatchers("/guest/**")
-                .access("hasAnyRole('ROLE_USER', 'ROLE_GUEST')")
-                .antMatchers("/user/**")
-                .access("hasRole('ROLE_USER')")
-                .antMatchers("/", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/h2-console/**", "/oauth/**", "/social/**", "/api/**", "/login/**", "/kakao/**")  // 기본 페이지, css, image, js 하위 폴더의 파일과 h2-console은 누구나 접근 가능
+                .antMatchers( )  // 기본 페이지, css, image, js 하위 폴더의 파일과 h2-console은 누구나 접근 가능
                 .permitAll()
                 .anyRequest().authenticated()
 
                 // 소셜 로그인 설정  TODO 이 부분을 여기에 꼭 넣어야 할까?
-                .and()
-                .oauth2Login()
-                .userInfoEndpoint().userService(customOAuth2UserService)
+//                .and()
+//                .oauth2Login()
+//                .userInfoEndpoint().userService(customOAuth2UserService)
         ;
 
         return http.build();

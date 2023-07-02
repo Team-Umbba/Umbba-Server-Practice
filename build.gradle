@@ -26,6 +26,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
 //	implementation 'org.springframework.boot:spring-boot-starter-mustache'
 
 	// JWT + OAuth2.0 을 위한 의존성
@@ -41,6 +43,8 @@ dependencies {
 	// 외부 API 호출을 지원하는 의존성 -> 카카오에 API 요청을 보내기 위함
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:3.1.7'
 
+	// Redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis:2.3.1.RELEASE'
 
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.h2database:h2'

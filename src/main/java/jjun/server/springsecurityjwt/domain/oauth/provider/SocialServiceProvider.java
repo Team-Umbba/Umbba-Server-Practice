@@ -1,6 +1,6 @@
 package jjun.server.springsecurityjwt.domain.oauth.provider;
 
-import jjun.server.springsecurityjwt.domain.oauth.service.KakaoSocialService;
+import jjun.server.springsecurityjwt.domain.oauth.service.KakaoLoginService;
 import jjun.server.springsecurityjwt.domain.oauth.service.SocialService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -26,11 +26,11 @@ public class SocialServiceProvider {
     // 구현한 소셜 서비스를 Map 에 모두 추가해준다. -> 클라이언트에서 받은 플랫폼 정보를 key 값으로 저장
     private static final Map<SocialPlatform, SocialService> socialServiceMap = new HashMap<>();
 
-    private final KakaoSocialService kakaoSocialService;
+    private final KakaoLoginService kakaoLoginService;
 
     @PostConstruct
     void initializeSocialServiceMap() {
-        socialServiceMap.put(SocialPlatform.KAKAO, kakaoSocialService);
+        socialServiceMap.put(SocialPlatform.KAKAO, kakaoLoginService);
     }
 
     public SocialService getSocialService(SocialPlatform socialPlatform) {

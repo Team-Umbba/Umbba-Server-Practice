@@ -4,9 +4,14 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SecurityException;
-import jjun.server.springsecurityjwt.domain.jwt.dto.AccessTokenDto;
-import jjun.server.springsecurityjwt.domain.jwt.dto.RefreshTokenDto;
+import jjun.server.springsecurityjwt.domain.jwt.dto.*;
+import jjun.server.springsecurityjwt.domain.jwt.filter.UserAuthentication;
+import jjun.server.springsecurityjwt.domain.jwt.model.RefreshToken;
+import jjun.server.springsecurityjwt.domain.jwt.model.RefreshTokenRepository;
+import jjun.server.springsecurityjwt.exception.Error;
+import jjun.server.springsecurityjwt.exception.model.CustomException;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,8 +31,9 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.stream.Collectors;
 
-@Component  // 컴포넌트로 등록했으므로 자동으로 IoC가 된다.
 @Slf4j
+@Component  // 컴포넌트로 등록했으므로 자동으로 IoC가 된다.
+@RequiredArgsConstructor
 public class JwtTokenProvider {
 
     @Value("${jwt.secret}")
@@ -41,8 +47,10 @@ public class JwtTokenProvider {
     private static final long ACCESS_TOKEN_EXPIRE_TIME = 120 * 60 *1000L;  // 액세스토큰 만료 시간: 2시간으로 지정
     private static final long REFRESH_TOKEN_EXPIRE_TIME = 60 * 60 *1000L;  // 리프레시토큰 만료 시간: 1시간으로 지정
 
-    private static final String BEARER_TYPE = "Bearer";
+    private static final String BEARER_TYPE = "Bearer ";
     private static final String AUTHORITIES_KEY = "auth";
+
+    private final RefreshTokenRepository refreshTokenRepository;
 
     /**
      * Subject -> Authentication Name
@@ -61,26 +69,46 @@ public class JwtTokenProvider {
                 .collect(Collectors.joining(","));
     }
 
+    // JWT Token (Access + Refresh) 발급
+    public TokenDto issueToken(Long userId) {
+
+        UserAuthentication authentication = new UserAuthentication(userId, null, null);
+
+        return TokenDto.builder()
+                .accessToken(generateAccessToken(authentication))
+                .refreshToken(generateRefreshToken(userId))
+                .build();
+    }
+
     // Refresh Token 발급 -> Dto 객체에 담아서 반환
-    public RefreshTokenDto generateRefreshToken() {
+    public String generateRefreshToken(Long userId) {
 
         final Date now = new Date();
         Date refreshTokenExpiresIn = new Date(now.getTime() + REFRESH_TOKEN_EXPIRE_TIME);  // 만료 시간 지정
 
+        final Claims claims = Jwts.claims()
+                .setIssuedAt(now)
+                .setExpiration(refreshTokenExpiresIn);
+
+
         String refreshToken = Jwts.builder()
+                .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
                 .setSubject(refreshTokenSubject)
-                .setExpiration(refreshTokenExpiresIn)
+                .setClaims(claims)
                 .signWith(getSigningKey(), SignatureAlgorithm.HS512)
                 .compact();
 
-        return RefreshTokenDto.builder()
-                .grantType(BEARER_TYPE)
+        refreshTokenRepository.save(RefreshToken.builder()
                 .refreshToken(refreshToken)
-                .build();
+                .userId(userId)
+                .expiration(Integer.parseInt(String.valueOf(REFRESH_TOKEN_EXPIRE_TIME)) / 1000)
+                .build());
+
+        return refreshToken;
     }
 
     // Access Token 발급 (유저 정보를 claim에 담기)
-    public AccessTokenDto generateAccessToken(Authentication authentication) {
+    public String generateAccessToken(Authentication authentication) {
 
         final Date now = new Date();
         Date accessTokenExpiresIn = new Date(now.getTime() + ACCESS_TOKEN_EXPIRE_TIME);  // 만료 시간 지정
@@ -96,16 +124,11 @@ public class JwtTokenProvider {
         claims.put("userId", authentication.getPrincipal());   // 유저 정보
         claims.put(AUTHORITIES_KEY, getAuthenticationAuthority(authentication));  // 권한 가져오가
 
-        String accessToken = Jwts.builder()
+        return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
                 .setClaims(claims)
                 .signWith(getSigningKey())
                 .compact();
-
-        return AccessTokenDto.builder()
-                .grantType(BEARER_TYPE)
-                .accessToken(accessToken)
-                .build();
     }
 
     private Key getSigningKey() {
@@ -170,6 +193,23 @@ public class JwtTokenProvider {
         return false;
     }
 
+    // Refresh Token의 유효성 검사 후 재발급 - 1. Redis에 저장된 토큰과의 일치 여부  2. 토큰 만료 여부
+    public TokenReissuedResponseDto reissueToken(TokenReissuedRequestDto request) {
+
+        final RefreshToken tokenFromRedis = refreshTokenRepository.findById(request.getRefreshToken()).orElseThrow(
+                () -> new CustomException(Error.INVALID_REFRESH_TOKEN)
+        );
+
+        if (!tokenFromRedis.getRefreshToken().equals(request.getRefreshToken())) {
+            throw new CustomException(Error.NO_MATCH_REFRESH_TOKEN);
+        }
+
+        // TODO 재발급을 Access + Refresh 모두 처리해줘도 되는지?
+        // Refresh Token의 유효성 검사를 통과하면 재발급 진행
+        final TokenDto reissuedToken = issueToken(tokenFromRedis.getUserId());
+        return TokenReissuedResponseDto.of(reissuedToken.getAccessToken(), reissuedToken.getRefreshToken());
+    }
+
     private Claims getBody(final String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
@@ -178,10 +218,10 @@ public class JwtTokenProvider {
                 .getBody();
     }
 
-    // JWT 토큰 내용 확인  TODO Long 으로 반환하게 할지?
-    public String getJwtContents(String token) {
+    // JWT 토큰에서 유저 아이디 가져오기
+    public Long getUserFromJwt(String token) {
         final Claims claims = getBody(token);
-        return (String) claims.get("userId");
+        return (Long) claims.get("userId");
     }
 
 }

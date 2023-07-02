@@ -3,6 +3,8 @@ package jjun.server.springsecurityjwt.common.advice;
 import jjun.server.springsecurityjwt.common.dto.ApiResponse;
 import jjun.server.springsecurityjwt.exception.Error;
 import jjun.server.springsecurityjwt.exception.model.CustomException;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+
 import java.util.Objects;
 
 /**
@@ -20,10 +23,20 @@ import java.util.Objects;
  * try-catch 구문을 강제하지 않는 Unchecked Exception 방식
  */
 @RestControllerAdvice
+@Slf4j
 public class ControllerExceptionAdvice {
 
     /**
      * 400 Bad Request
+     *
+     * MissingServletRequestParameterException.class,
+     * MissingRequestHeaderException.class,
+     * IllegalStateException.class,
+     * IllegalArgumentException.class,
+     * HttpMessageNotReadableException.class,
+     * MissingServletRequestParameterException.class,
+     * MultipartException.class,
+     * NoHandlerFoundException.class
      */
     // @Valid 어노테이션이 붙은 Controller 단의 예외를 잡아준다. (DTO에서 지정)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -34,17 +47,13 @@ public class ControllerExceptionAdvice {
         return ApiResponse.error(Error.REQUEST_VALIDATION_EXCEPTION, String.format("%s. (%s)", fieldError.getDefaultMessage(), fieldError.getField()));
     }
 
+
     // Header에 원하는 Key가 없는 경우
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MissingRequestHeaderException.class)
     protected ApiResponse<Object> handlerMissingRequestHeaderException(final MissingRequestHeaderException e) {
         return ApiResponse.error(Error.HEADER_REQUEST_MISSING_EXCEPTION, Error.HEADER_REQUEST_MISSING_EXCEPTION.getMessage());
     }
-
-    /*@ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(BadRequestException.class)
-    protected ApiResponse<Object> handlerBadRequestException(final BadRequestException e) {
-        return ApiResponse.error(e.getError(), e.getMessage());
-    }*/
 
 
 
@@ -52,12 +61,14 @@ public class ControllerExceptionAdvice {
      * 500 Server Error
      * * 서비스 단에서 예외가 꼼꼼하게 처리된 상태에서 500에러를 던지는 게 좋다
      */
-    /*@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
     protected ApiResponse<Object> handleException(final Exception e) {
-        System.out.println(e.getMessage());
+
+        log.error("Unexpected exception occurred: {}", e.getMessage(), e);
+
         return ApiResponse.error(Error.INTERNAL_SERVER_ERROR);
-    }*/
+    }
 
 
     /**
@@ -65,6 +76,9 @@ public class ControllerExceptionAdvice {
      */
     @ExceptionHandler(CustomException.class)
     protected ResponseEntity<ApiResponse> handleCustomException(CustomException e) {
+
+        log.debug("CustomException occured: {}", e.getMessage(), e);
+
         return ResponseEntity.status(e.getHttpStatus())
                 .body(ApiResponse.error(e.getError(), e.getMessage()));
     }

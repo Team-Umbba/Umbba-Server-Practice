@@ -15,5 +15,6 @@ import lombok.*;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class KakaoUserResponse {
 
+    private Long id;
     private KakaoAccount kakaoAccount;  // user -> account 정보로 연결하여 가져오기
 }

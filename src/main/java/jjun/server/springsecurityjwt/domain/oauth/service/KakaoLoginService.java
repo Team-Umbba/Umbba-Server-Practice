@@ -21,10 +21,15 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class KakaoSocialService extends SocialService {
+public class KakaoLoginService extends SocialService {
 
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
-    private String clientId;
+    private String CLIENT_ID;
+    @Value("${spring.security.oauth2.client.registration.kakao.redirect-uri}")
+    private String REDIRECT_URI;
+    @Value("${spring.security.oauth2.client.registration.kakao.authorizarion-grant-type}")
+    private String GRANT_TYPE;
+
     /*@Value("${spring.security.oauth2.client.registration.kakao.client-secret}")
     private String clientSecret;*/
 
@@ -33,33 +38,58 @@ public class KakaoSocialService extends SocialService {
     private final KakaoAuthApiClient kakaoAuthApiClient;
     private final KakaoApiClient kakaoApiClient;
 
+    // 인가 코드로 액세스 토큰 요청하기
+    public String getKakaoAccessToken(String code) {
+
+        KakaoAccessTokenResponse tokenResponse = kakaoAuthApiClient.getOAuth2AccessToken(
+                GRANT_TYPE,
+                CLIENT_ID,
+                REDIRECT_URI,
+                code
+        );
+        return "Bearer " + tokenResponse.getAccessToken();
+    }
+
+    public String getKakaoId(String socialAccessToken) {
+
+        // Access Token으로 유저 정보 불러오기
+        KakaoUserResponse userResponse = kakaoApiClient.getUserInformation("Bearer " + socialAccessToken);
+
+        return Long.toString(userResponse.getId());
+
+    }
+
+    public void setKakaoInfo(User loginUser, String socialAccessToken) {
+
+        // Access Token으로 유저 정보 불러오기
+        KakaoUserResponse userResponse = kakaoApiClient.getUserInformation("Bearer " + socialAccessToken);
+
+        loginUser.updateSocialInfo(
+                userResponse.getKakaoAccount().getProfile().getNickname(),
+                userResponse.getKakaoAccount().getProfile().getProfileImageUrl(),
+                socialAccessToken);
+    }
+
+    // TODO SocialService Interface를 이용하여 구현할 경우
     @Override
     public Long login(SocialLoginRequest request) {
 
         log.info("KakaoSocialService - login 수행, {}", request.getCode());
 
-        // 인가 코드로 액세스 토큰 요청하기
-        KakaoAccessTokenResponse tokenResponse = kakaoAuthApiClient.getOAuth2AccessToken(
-                "authorization_code",
-                clientId,
-                "http://localhost:9080/login/oauth2/code/kakao",
-                request.getCode()
-        );
+        String socialAccessToken = getKakaoAccessToken(request.getCode());
 
         // Access Token으로 유저 정보 불러오기
-        KakaoUserResponse userResponse = kakaoApiClient.getUserInformation("Bearer " + tokenResponse.getAccessToken());
+        KakaoUserResponse userResponse = kakaoApiClient.getUserInformation("Bearer " + socialAccessToken);
+
 
         // Response -> Account -> Profile 로 접근
         User user = User.of(
-                userResponse.getKakaoAccount().getProfile().getEmail(),
-                userResponse.getKakaoAccount().getProfile().getEmail(),
+                Role.USER,
+                SocialPlatform.KAKAO,
+                getKakaoId(socialAccessToken),
                 userResponse.getKakaoAccount().getProfile().getNickname(),
                 userResponse.getKakaoAccount().getProfile().getProfileImageUrl(),
-                tokenResponse.getAccessToken(),
-                tokenResponse.getRefreshToken(),
-                SocialPlatform.KAKAO,
-                userResponse.getKakaoAccount().getProfile().getEmail(), // TODO SocialId가 의미하는 바를 아직 정확히 몰라서 이메일 값으로 넣어둠
-                Role.USER
+                socialAccessToken
                 );
 
         userRepository.save(user);
