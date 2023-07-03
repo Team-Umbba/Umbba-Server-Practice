@@ -3,6 +3,7 @@ package sopt.org.umbbaServer.domain.user.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import sopt.org.umbbaServer.domain.user.dto.RefreshRequestDto;
 import sopt.org.umbbaServer.domain.user.jwt.JwtProvider;
 import sopt.org.umbbaServer.domain.user.service.AuthService;
 import sopt.org.umbbaServer.domain.user.jwt.TokenDto;
@@ -36,9 +37,10 @@ public class AuthController {
     @PostMapping("/refresh")
     @ResponseStatus(HttpStatus.OK)
     public ApiResponse<TokenDto> refresh(
-            @RequestHeader("Authorization") String refreshToken) throws Exception {
+            @RequestHeader("Authorization") String refreshToken,
+            @RequestBody RefreshRequestDto request) throws Exception {
 
-        return ApiResponse.success(SuccessType.REFRESH_SUCCESS, authService.refreshToken(refreshToken));
+        return ApiResponse.success(SuccessType.REFRESH_SUCCESS, authService.refreshToken(request.getUserId(), refreshToken));
     }
 
     @PostMapping("/log-out") // Spring Security 자체 로그아웃과 충돌하기 때문에 이렇게 써줌

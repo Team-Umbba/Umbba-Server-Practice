@@ -33,7 +33,7 @@ public class KakaoLoginService {
                 REDIRECT_URL,
                 code
         );
-        return "Bearer " + tokenResponse.getAccessToken();
+        return tokenResponse.getAccessToken();
         // Refresh 토큰은 필요 없는거 맞나?
         // 1. 만약 필요하다면 클라한테서 함께 받아온다음
         // 2. login 메서드 -> setKakaoInfo 메서드 호출할 때 같이 받아오는 작업 필요
@@ -42,7 +42,7 @@ public class KakaoLoginService {
     public String getKakaoId(String socialAccessToken) {
 
         // Access Token으로 유저 정보 불러오기
-        KakaoUserResponse userResponse = kakaoApiClient.getUserInformation(socialAccessToken);
+        KakaoUserResponse userResponse = kakaoApiClient.getUserInformation("Bearer " + socialAccessToken);
 
         String kakaoId = Long.toString(userResponse.getId()); //Social ID를 조회
 
@@ -52,7 +52,7 @@ public class KakaoLoginService {
     public void setKakaoInfo(User loginUser, String socialAccessToken) {
 
         // Access Token으로 유저 정보 불러오기
-        KakaoUserResponse userResponse = kakaoApiClient.getUserInformation(socialAccessToken);
+        KakaoUserResponse userResponse = kakaoApiClient.getUserInformation("Bearer " + socialAccessToken);
 
         loginUser.updateSocialInfo(userResponse.getKakaoAccount().getProfile().getNickname(),
                 userResponse.getKakaoAccount().getProfile().getProfileImageUrl(),

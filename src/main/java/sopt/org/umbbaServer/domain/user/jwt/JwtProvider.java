@@ -20,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.util.Base64;
 import java.util.Date;
+import java.util.UUID;
 
 import static java.util.Objects.isNull;
 
@@ -53,30 +54,22 @@ public class JwtProvider {
                 .compact();
     }
 
+    // Refresh 토큰 생성
+    /**
+     * Redis 내부에는
+     * refreshToken:userId : tokenValue 형태로 저장한다.
+     * accessToken과 다르게 UUID로 생성한다.
+     */
     public String generateRefreshToken(Authentication authentication, Long tokenExpirationTime) {
 
-        final Date now = new Date();
-
-        final Claims claims = Jwts.claims()
-                .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + tokenExpirationTime));
-
-        claims.put("userId", authentication.getPrincipal());
-
-        String refreshToken =  Jwts.builder()
-                                .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
-                                .setClaims(claims)
-                                .signWith(getSigningKey())
-                                .compact();
-
-        // Redis에도 저장
-        tokenRepository.save(RefreshToken.builder()
-                .id(Long.parseLong(authentication.getPrincipal().toString()))
-                .refreshToken(refreshToken)
-                .expiration(tokenExpirationTime.intValue() / 1000)
-                .build());
-
-        return refreshToken;
+        RefreshToken refreshToken = tokenRepository.save(
+                RefreshToken.builder()
+                        .id(Long.parseLong(authentication.getPrincipal().toString()))
+                        .refreshToken(UUID.randomUUID().toString())
+                        .expiration(tokenExpirationTime.intValue() / 1000)
+                        .build()
+        );
+        return refreshToken.getRefreshToken();
     }
 
     // Access 토큰 검증
@@ -100,9 +93,9 @@ public class JwtProvider {
     }
 
     // Refresh 토큰 검증
-    public boolean validRefreshToken(User user, String refreshToken) throws Exception {
+    public boolean validRefreshToken(Long userId, String refreshToken) throws Exception {
         // 해당유저의 Refresh 토큰 만료 : Redis에 해당 유저의 토큰이 존재하지 않음
-        RefreshToken token = tokenRepository.findById(user.getId()).orElseThrow(() -> new CustomException(ErrorType.INVALID_REFRESH_TOKEN));
+        RefreshToken token = tokenRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorType.INVALID_REFRESH_TOKEN));
 
         if (token.getRefreshToken() == null) {
             return false;

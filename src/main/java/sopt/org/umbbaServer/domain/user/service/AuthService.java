@@ -70,20 +70,12 @@ public class AuthService {
     }
 
     @Transactional
-    public TokenDto refreshToken(String refreshToken) throws Exception {
-        if (jwtProvider.validateAccessToken(refreshToken) == JwtValidationType.EXPIRED_JWT_TOKEN) {
-            throw new CustomException(ErrorType.INVALID_REFRESH_TOKEN);
-        }
-        // 현재와 같이 Refresh 토큰에서 userId를 얻어내면
-        // 장점: 클라가 편하고 로직이 깔끔해질 수 있음
-        // 단점: Redis를 쓰는 이유가 없어짐 ㅠㅠ
+    public TokenDto refreshToken(Long userId, String refreshToken) throws Exception {
 
-        Long userId = jwtProvider.getUserFromJwt(refreshToken);
-        User user = getUserById(userId);
+        User user = getUserById(userId); //userId가 잘못 날라오는 경우에 대비해 남김
 
-        if (jwtProvider.validRefreshToken(user, refreshToken)) {
-            TokenDto newTokenDto = generateToken(new UserAuthentication(userId, null, null));
-            return newTokenDto;
+        if (jwtProvider.validRefreshToken(userId, refreshToken)) {
+            return generateToken(new UserAuthentication(userId, null, null));
 
         } else {
             throw new CustomException(ErrorType.NOTMATCH_REFRESH_TOKEN);
