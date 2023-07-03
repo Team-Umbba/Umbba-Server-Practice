@@ -132,7 +132,7 @@ public class JwtProvider {
 
     public static Long getUserFromPrincial(Principal principal) {
         if (isNull(principal)) {
-            throw new CustomException(ErrorType.EMPTY_PRINCIPLE);
+            throw new CustomException(ErrorType.EMPTY_PRINCIPLE_EXCEPTION);
         }
         return Long.valueOf(principal.getName());
     }

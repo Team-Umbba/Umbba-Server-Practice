@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import sopt.org.umbbaServer.util.slack.SlackApi;
-
 import javax.validation.UnexpectedTypeException;
 import java.util.Objects;
 
